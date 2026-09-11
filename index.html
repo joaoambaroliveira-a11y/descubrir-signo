@@ -34,7 +34,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            min-height: 420px;
+            min-height: 430px;
         }
 
         h1 {
@@ -58,13 +58,6 @@
             font-size: 1rem;
             color: #ffd700;
             font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        /* Campo de data com destaque forte desde o início */
-        .campo-data {
-            position: relative;
-            margin-bottom: 10px;
         }
 
         input[type="date"] {
@@ -81,32 +74,23 @@
             letter-spacing: 1px;
             animation: brilho 2.2s infinite ease-in-out;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.35);
+            margin-bottom: 12px;
         }
 
-        /* Animação de brilho contínuo */
         @keyframes brilho {
-            0%, 100% {
-                box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-                border-color: #ffd700;
-            }
-            50% {
-                box-shadow: 0 0 28px rgba(255, 215, 0, 0.65);
-                border-color: #ffe566;
-            }
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 28px rgba(255, 215, 0, 0.65); }
         }
 
         input[type="date"]:focus {
             background: rgba(255, 215, 0, 0.18);
-            border-color: #ffe566;
             box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.5);
             transform: scale(1.04);
             animation: none;
         }
 
-        /* Quando a data é preenchida */
         input[type="date"].preenchido {
             background: rgba(255, 215, 0, 0.22);
-            border-color: #ffe566;
             box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.35), 0 0 35px rgba(255, 215, 0, 0.6);
             transform: scale(1.05);
             animation: none;
@@ -120,12 +104,10 @@
             opacity: 0;
             transition: 0.35s;
             font-weight: 600;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .feedback-data.mostrar {
             opacity: 1;
-            transform: scale(1.05);
         }
 
         button {
@@ -156,7 +138,7 @@
         .loading {
             position: absolute;
             inset: 0;
-            background: rgba(15, 23, 42, 0.96);
+            background: rgba(15, 23, 42, 0.97);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -193,50 +175,70 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Resultado */
+        /* ========== RESULTADO MELHORADO ========== */
         .resultado {
-            padding: 10px 5px;
             display: none;
-            animation: fadeIn 0.6s ease;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: all 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .resultado.mostrar {
             display: block;
+            opacity: 1;
+            transform: scale(1);
         }
 
         .emoji {
-            font-size: 4.2rem;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+            font-size: 4.8rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.6));
+            animation: emojiEntrada 0.7s ease;
+        }
+
+        @keyframes emojiEntrada {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            60% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
         }
 
         .signo-nome {
-            font-size: 2.4rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 6px;
             color: #ffd700;
-            text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: nomeEntrada 0.6s ease 0.15s both;
+        }
+
+        @keyframes nomeEntrada {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .signo-periodo {
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: #ccc;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
+            animation: nomeEntrada 0.6s ease 0.25s both;
         }
 
         .signo-descricao {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #e0e0e0;
+            font-size: 1.02rem;
+            line-height: 1.65;
+            color: #e8e8e8;
             margin-bottom: 28px;
-            background: rgba(255, 255, 255, 0.07);
-            padding: 16px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            animation: nomeEntrada 0.6s ease 0.35s both;
         }
 
         .btn-atualizar {
             background: linear-gradient(90deg, #4facfe, #00f2fe);
             opacity: 1 !important;
+            animation: nomeEntrada 0.6s ease 0.45s both;
         }
 
         .btn-atualizar:hover {
@@ -246,11 +248,6 @@
 
         .formulario.esconder {
             display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -268,10 +265,7 @@
             <p class="subtitle">Selecione sua data de nascimento</p>
 
             <label for="dataNascimento">Data de Nascimento:</label>
-            
-            <div class="campo-data">
-                <input type="date" id="dataNascimento">
-            </div>
+            <input type="date" id="dataNascimento">
             
             <div class="feedback-data" id="feedback">Data selecionada!</div>
 
@@ -293,7 +287,6 @@
         const btn = document.getElementById("btnDescobrir");
         const feedback = document.getElementById("feedback");
 
-        // Destaca fortemente assim que a data é selecionada
         inputData.addEventListener("change", function() {
             if (this.value) {
                 this.classList.add("preenchido");
@@ -314,7 +307,6 @@
             }
         });
 
-        // Foca automaticamente no campo de data ao abrir a página
         window.onload = function() {
             inputData.focus();
         };
@@ -381,25 +373,30 @@
                     document.getElementById("periodo").textContent = periodo;
                     document.getElementById("descricao").textContent = signoEncontrado.descricao;
 
+                    // Esconde formulário e mostra resultado com animação
                     document.getElementById("formulario").classList.add("esconder");
-                    document.getElementById("resultado").classList.add("mostrar");
+                    
+                    // Pequeno delay para a animação de entrada ficar mais suave
+                    setTimeout(() => {
+                        document.getElementById("resultado").classList.add("mostrar");
+                    }, 50);
                 }
 
                 document.getElementById("loading").classList.remove("mostrar");
-            }, 1300);
+            }, 1400);
         }
 
         function voltarFormulario() {
             document.getElementById("resultado").classList.remove("mostrar");
-            document.getElementById("formulario").classList.remove("esconder");
             
-            inputData.value = "";
-            inputData.classList.remove("preenchido");
-            feedback.classList.remove("mostrar");
-            btn.classList.remove("ativo");
-            
-            // Volta o foco e o brilho
-            setTimeout(() => inputData.focus(), 100);
+            setTimeout(() => {
+                document.getElementById("formulario").classList.remove("esconder");
+                inputData.value = "";
+                inputData.classList.remove("preenchido");
+                feedback.classList.remove("mostrar");
+                btn.classList.remove("ativo");
+                inputData.focus();
+            }, 300);
         }
     </script>
 </body>
