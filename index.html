@@ -32,6 +32,9 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 380px;
         }
 
         h1 {
@@ -92,64 +95,132 @@
             box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
         }
 
+        /* Tela de carregamento */
+        .loading {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+
+        .loading.mostrar {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: #ffd700;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Resultado */
         .resultado {
-            margin-top: 30px;
-            padding: 25px;
+            margin-top: 10px;
+            padding: 25px 15px;
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.07);
             display: none;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.6s ease;
         }
 
         .resultado.mostrar {
             display: block;
         }
 
+        .emoji {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
         .signo-nome {
-            font-size: 2rem;
+            font-size: 2.1rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #ffd700;
         }
 
         .signo-periodo {
             font-size: 0.95rem;
             color: #aaa;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .signo-descricao {
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.55;
             color: #ddd;
+            margin-bottom: 25px;
         }
 
-        .emoji {
-            font-size: 3rem;
-            margin-bottom: 10px;
+        .btn-atualizar {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            margin-top: 5px;
+        }
+
+        .btn-atualizar:hover {
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Esconde o formulário quando mostra resultado */
+        .formulario.esconder {
+            display: none;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✨ Descubra seu Signo</h1>
-        <p class="subtitle">Informe sua data de nascimento</p>
+        <!-- Tela de carregamento -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Atualizando seu signo...</div>
+        </div>
 
-        <label for="dataNascimento">Data de Nascimento:</label>
-        <input type="date" id="dataNascimento">
+        <!-- Formulário -->
+        <div class="formulario" id="formulario">
+            <h1>✨ Descubra seu Signo</h1>
+            <p class="subtitle">Informe sua data de nascimento</p>
 
-        <button onclick="descobrirSigno()">Descobrir Signo</button>
+            <label for="dataNascimento">Data de Nascimento:</label>
+            <input type="date" id="dataNascimento">
 
+            <button onclick="descobrirSigno()">Descobrir Signo</button>
+        </div>
+
+        <!-- Resultado -->
         <div class="resultado" id="resultado">
             <div class="emoji" id="emoji"></div>
             <div class="signo-nome" id="nomeSigno"></div>
             <div class="signo-periodo" id="periodo"></div>
             <div class="signo-descricao" id="descricao"></div>
+            <button class="btn-atualizar" onclick="voltarFormulario()">Atualizar data</button>
         </div>
     </div>
 
@@ -249,48 +320,62 @@
                 return;
             }
 
-            const data = new Date(dataInput + "T00:00:00");
-            const dia = data.getDate();
-            const mes = data.getMonth() + 1; // Janeiro = 1
+            // Mostra a tela de carregamento
+            document.getElementById("loading").classList.add("mostrar");
 
-            let signoEncontrado = null;
+            // Simula um pequeno atraso para a animação ficar bonita
+            setTimeout(() => {
+                const data = new Date(dataInput + "T00:00:00");
+                const dia = data.getDate();
+                const mes = data.getMonth() + 1;
 
-            for (let s of signos) {
-                const [mesInicio, diaInicio] = s.inicio;
-                const [mesFim, diaFim] = s.fim;
+                let signoEncontrado = null;
 
-                // Casos especiais de Capricórnio (cruza o ano)
-                if (s.nome === "Capricórnio") {
-                    if ((mes === 12 && dia >= 22) || (mes === 1 && dia <= 19)) {
-                        signoEncontrado = s;
-                        break;
-                    }
-                } else {
-                    if (
-                        (mes === mesInicio && dia >= diaInicio) ||
-                        (mes === mesFim && dia <= diaFim) ||
-                        (mesInicio < mesFim && mes > mesInicio && mes < mesFim)
-                    ) {
-                        signoEncontrado = s;
-                        break;
+                for (let s of signos) {
+                    const [mesInicio, diaInicio] = s.inicio;
+                    const [mesFim, diaFim] = s.fim;
+
+                    if (s.nome === "Capricórnio") {
+                        if ((mes === 12 && dia >= 22) || (mes === 1 && dia <= 19)) {
+                            signoEncontrado = s;
+                            break;
+                        }
+                    } else {
+                        if (
+                            (mes === mesInicio && dia >= diaInicio) ||
+                            (mes === mesFim && dia <= diaFim) ||
+                            (mesInicio < mesFim && mes > mesInicio && mes < mesFim)
+                        ) {
+                            signoEncontrado = s;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (signoEncontrado) {
-                document.getElementById("emoji").textContent = signoEncontrado.emoji;
-                document.getElementById("nomeSigno").textContent = signoEncontrado.nome;
-                
-                // Formata o período
-                const meses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", 
-                               "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-                const periodo = `${signoEncontrado.inicio[1]} ${meses[signoEncontrado.inicio[0]]} – ${signoEncontrado.fim[1]} ${meses[signoEncontrado.fim[0]]}`;
-                document.getElementById("periodo").textContent = periodo;
-                
-                document.getElementById("descricao").textContent = signoEncontrado.descricao;
-                
-                document.getElementById("resultado").classList.add("mostrar");
-            }
+                if (signoEncontrado) {
+                    document.getElementById("emoji").textContent = signoEncontrado.emoji;
+                    document.getElementById("nomeSigno").textContent = signoEncontrado.nome;
+
+                    const meses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+                                   "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                    const periodo = `${signoEncontrado.inicio[1]} ${meses[signoEncontrado.inicio[0]]} – ${signoEncontrado.fim[1]} ${meses[signoEncontrado.fim[0]]}`;
+                    document.getElementById("periodo").textContent = periodo;
+                    document.getElementById("descricao").textContent = signoEncontrado.descricao;
+
+                    // Esconde formulário e mostra resultado
+                    document.getElementById("formulario").classList.add("esconder");
+                    document.getElementById("resultado").classList.add("mostrar");
+                }
+
+                // Esconde a tela de carregamento
+                document.getElementById("loading").classList.remove("mostrar");
+            }, 1200); // 1.2 segundos de "carregamento"
+        }
+
+        function voltarFormulario() {
+            document.getElementById("resultado").classList.remove("mostrar");
+            document.getElementById("formulario").classList.remove("esconder");
+            document.getElementById("dataNascimento").value = "";
         }
     </script>
 </body>
