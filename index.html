@@ -20,6 +20,7 @@
             align-items: center;
             color: #fff;
             padding: 20px;
+            transition: background 0.8s ease;
         }
 
         .container {
@@ -291,6 +292,22 @@
         const btn = document.getElementById("btnDescobrir");
         const feedback = document.getElementById("feedback");
 
+        // Cores de fundo para cada signo
+        const fundosPorSigno = {
+            "Áries": "linear-gradient(135deg, #3a0a0a, #8b0000, #ff4500)",
+            "Touro": "linear-gradient(135deg, #0d2818, #1a4d2e, #2e8b57)",
+            "Gêmeos": "linear-gradient(135deg, #2c2a1a, #5c4e1a, #f0c929)",
+            "Câncer": "linear-gradient(135deg, #0a1a2e, #1a3a5c, #87ceeb)",
+            "Leão": "linear-gradient(135deg, #3a2a0a, #8b5a00, #ffd700)",
+            "Virgem": "linear-gradient(135deg, #1a1a12, #3d3d2a, #a8a77a)",
+            "Libra": "linear-gradient(135deg, #2a1a2e, #5c3a6e, #ee82ee)",
+            "Escorpião": "linear-gradient(135deg, #1a0a0a, #4a0000, #8b0000)",
+            "Sagitário": "linear-gradient(135deg, #1a0a2e, #3a1a6e, #9b59b6)",
+            "Capricórnio": "linear-gradient(135deg, #0a1a12, #1a3a2a, #2e8b57)",
+            "Aquário": "linear-gradient(135deg, #0a1a2e, #1a3a5c, #00ced1)",
+            "Peixes": "linear-gradient(135deg, #0a1a2e, #1a2a4a, #6495ed)"
+        };
+
         inputData.addEventListener("change", function() {
             if (this.value) {
                 this.classList.add("preenchido");
@@ -337,7 +354,6 @@
             let idade = hoje.getFullYear() - nascimento.getFullYear();
             const mes = hoje.getMonth() - nascimento.getMonth();
             
-            // Ajusta se ainda não fez aniversário este ano
             if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
                 idade--;
             }
@@ -353,7 +369,6 @@
                 return;
             }
 
-            // Impede data futura
             const hoje = new Date();
             const dataEscolhida = new Date(dataInput + "T00:00:00");
             if (dataEscolhida > hoje) {
@@ -403,6 +418,9 @@
                     document.getElementById("periodo").textContent = periodo;
                     document.getElementById("descricao").textContent = signoEncontrado.descricao;
 
+                    // Muda o fundo conforme o signo
+                    document.body.style.background = fundosPorSigno[signoEncontrado.nome];
+
                     document.getElementById("formulario").classList.add("esconder");
                     
                     setTimeout(() => {
@@ -416,6 +434,9 @@
 
         function voltarFormulario() {
             document.getElementById("resultado").classList.remove("mostrar");
+            
+            // Volta o fundo original
+            document.body.style.background = "linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)";
             
             setTimeout(() => {
                 document.getElementById("formulario").classList.remove("esconder");
