@@ -134,7 +134,6 @@
             transform: scale(1.05) translateY(-2px);
         }
 
-        /* Tela de carregamento */
         .loading {
             position: absolute;
             inset: 0;
@@ -175,7 +174,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ========== RESULTADO MELHORADO ========== */
         .resultado {
             display: none;
             opacity: 0;
@@ -216,6 +214,14 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .idade {
+            font-size: 1.25rem;
+            color: #4facfe;
+            font-weight: 600;
+            margin-bottom: 10px;
+            animation: nomeEntrada 0.6s ease 0.2s both;
+        }
+
         .signo-periodo {
             font-size: 1.05rem;
             color: #ccc;
@@ -253,13 +259,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- Tela de carregamento -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <div class="loading-text">Atualizando seu signo...</div>
         </div>
 
-        <!-- Formulário -->
         <div class="formulario" id="formulario">
             <h1>✨ Descubra seu Signo</h1>
             <p class="subtitle">Selecione sua data de nascimento</p>
@@ -272,10 +276,10 @@
             <button id="btnDescobrir" onclick="descobrirSigno()">Descobrir Signo</button>
         </div>
 
-        <!-- Resultado -->
         <div class="resultado" id="resultado">
             <div class="emoji" id="emoji"></div>
             <div class="signo-nome" id="nomeSigno"></div>
+            <div class="idade" id="idade"></div>
             <div class="signo-periodo" id="periodo"></div>
             <div class="signo-descricao" id="descricao"></div>
             <button class="btn-atualizar" onclick="voltarFormulario()">Atualizar data</button>
@@ -326,11 +330,34 @@
             { nome: "Sagitário", emoji: "♐", inicio: [11, 22], fim: [12, 21], descricao: "Aventureiro, otimista e filosófico. Ama liberdade e novas experiências." }
         ];
 
+        function calcularIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento + "T00:00:00");
+            
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            
+            // Ajusta se ainda não fez aniversário este ano
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            
+            return idade;
+        }
+
         function descobrirSigno() {
             const dataInput = inputData.value;
 
             if (!dataInput) {
                 alert("Por favor, selecione uma data de nascimento!");
+                return;
+            }
+
+            // Impede data futura
+            const hoje = new Date();
+            const dataEscolhida = new Date(dataInput + "T00:00:00");
+            if (dataEscolhida > hoje) {
+                alert("A data de nascimento não pode ser no futuro!");
                 return;
             }
 
@@ -365,18 +392,19 @@
                 }
 
                 if (signoEncontrado) {
+                    const idade = calcularIdade(dataInput);
+
                     document.getElementById("emoji").textContent = signoEncontrado.emoji;
                     document.getElementById("nomeSigno").textContent = signoEncontrado.nome;
+                    document.getElementById("idade").textContent = `Você tem ${idade} anos`;
 
                     const meses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
                     const periodo = `${signoEncontrado.inicio[1]} ${meses[signoEncontrado.inicio[0]]} – ${signoEncontrado.fim[1]} ${meses[signoEncontrado.fim[0]]}`;
                     document.getElementById("periodo").textContent = periodo;
                     document.getElementById("descricao").textContent = signoEncontrado.descricao;
 
-                    // Esconde formulário e mostra resultado com animação
                     document.getElementById("formulario").classList.add("esconder");
                     
-                    // Pequeno delay para a animação de entrada ficar mais suave
                     setTimeout(() => {
                         document.getElementById("resultado").classList.add("mostrar");
                     }, 50);
