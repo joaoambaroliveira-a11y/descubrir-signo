@@ -314,37 +314,34 @@
         }
 
         function tocarSomRevelacao() {
-            // Nota 1
             const osc1 = audioCtx.createOscillator();
             const gain1 = audioCtx.createGain();
             osc1.connect(gain1);
             gain1.connect(audioCtx.destination);
             osc1.type = "sine";
-            osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // Dó
+            osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime);
             gain1.gain.setValueAtTime(0.12, audioCtx.currentTime);
             gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
             osc1.start();
             osc1.stop(audioCtx.currentTime + 0.4);
 
-            // Nota 2
             const osc2 = audioCtx.createOscillator();
             const gain2 = audioCtx.createGain();
             osc2.connect(gain2);
             gain2.connect(audioCtx.destination);
             osc2.type = "sine";
-            osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // Mi
+            osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15);
             gain2.gain.setValueAtTime(0.12, audioCtx.currentTime + 0.15);
             gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.55);
             osc2.start(audioCtx.currentTime + 0.15);
             osc2.stop(audioCtx.currentTime + 0.55);
 
-            // Nota 3
             const osc3 = audioCtx.createOscillator();
             const gain3 = audioCtx.createGain();
             osc3.connect(gain3);
             gain3.connect(audioCtx.destination);
             osc3.type = "sine";
-            osc3.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3); // Sol
+            osc3.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3);
             gain3.gain.setValueAtTime(0.15, audioCtx.currentTime + 0.3);
             gain3.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
             osc3.start(audioCtx.currentTime + 0.3);
@@ -367,12 +364,51 @@
             "Peixes": "linear-gradient(135deg, #0a1a2e, #1a2a4a, #6495ed)"
         };
 
+        // ========== SALVAR E CARREGAR ÚLTIMA DATA ==========
+        function salvarUltimaData(data) {
+            localStorage.setItem("ultimaDataNascimento", data);
+        }
+
+        function carregarUltimaData() {
+            const dataSalva = localStorage.getItem("ultimaDataNascimento");
+            if (dataSalva) {
+                inputData.value = dataSalva;
+                inputData.classList.add("preenchido");
+                feedback.classList.add("mostrar");
+                btn.classList.add("ativo");
+            }
+        }
+
+        // Impede data futura no próprio campo
+        function definirMaxData() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoje.getDate()).padStart(2, "0");
+            inputData.max = `${ano}-${mes}-${dia}`;
+        }
+
         inputData.addEventListener("change", function() {
             if (this.value) {
+                // Verifica se a data é futura
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                const dataEscolhida = new Date(this.value + "T00:00:00");
+
+                if (dataEscolhida > hoje) {
+                    alert("A data de nascimento não pode ser no futuro!");
+                    this.value = "";
+                    this.classList.remove("preenchido");
+                    feedback.classList.remove("mostrar");
+                    btn.classList.remove("ativo");
+                    return;
+                }
+
                 this.classList.add("preenchido");
                 feedback.classList.add("mostrar");
                 btn.classList.add("ativo");
-                tocarSomSelecao(); // Som ao selecionar a data
+                tocarSomSelecao();
+                salvarUltimaData(this.value); // Salva a data
             } else {
                 this.classList.remove("preenchido");
                 feedback.classList.remove("mostrar");
@@ -389,6 +425,8 @@
         });
 
         window.onload = function() {
+            definirMaxData();      // Bloqueia datas futuras no calendário
+            carregarUltimaData();  // Carrega a última data salva
             inputData.focus();
         };
 
@@ -430,11 +468,16 @@
             }
 
             const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
             const dataEscolhida = new Date(dataInput + "T00:00:00");
+
             if (dataEscolhida > hoje) {
                 alert("A data de nascimento não pode ser no futuro!");
                 return;
             }
+
+            // Salva a data novamente (por garantia)
+            salvarUltimaData(dataInput);
 
             document.getElementById("loading").classList.add("mostrar");
 
@@ -478,14 +521,13 @@
                     document.getElementById("periodo").textContent = periodo;
                     document.getElementById("descricao").textContent = signoEncontrado.descricao;
 
-                    // Muda o fundo conforme o signo
                     document.body.style.background = fundosPorSigno[signoEncontrado.nome];
 
                     document.getElementById("formulario").classList.add("esconder");
                     
                     setTimeout(() => {
                         document.getElementById("resultado").classList.add("mostrar");
-                        tocarSomRevelacao(); // Som mágico quando o signo aparece
+                        tocarSomRevelacao();
                     }, 50);
                 }
 
@@ -496,15 +538,25 @@
         function voltarFormulario() {
             document.getElementById("resultado").classList.remove("mostrar");
             
-            // Volta o fundo original
             document.body.style.background = "linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)";
             
             setTimeout(() => {
                 document.getElementById("formulario").classList.remove("esconder");
-                inputData.value = "";
-                inputData.classList.remove("preenchido");
-                feedback.classList.remove("mostrar");
-                btn.classList.remove("ativo");
+                
+                // Mantém a última data salva (não limpa)
+                const dataSalva = localStorage.getItem("ultimaDataNascimento");
+                if (dataSalva) {
+                    inputData.value = dataSalva;
+                    inputData.classList.add("preenchido");
+                    feedback.classList.add("mostrar");
+                    btn.classList.add("ativo");
+                } else {
+                    inputData.value = "";
+                    inputData.classList.remove("preenchido");
+                    feedback.classList.remove("mostrar");
+                    btn.classList.remove("ativo");
+                }
+                
                 inputData.focus();
             }, 300);
         }
