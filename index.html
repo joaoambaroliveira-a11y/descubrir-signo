@@ -61,8 +61,16 @@
             font-weight: 600;
         }
 
+        /* Área do campo de data + data salva */
+        .area-data {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
         input[type="date"] {
-            width: 100%;
+            flex: 1;
             padding: 18px 16px;
             border: 2px solid #ffd700;
             border-radius: 14px;
@@ -75,7 +83,6 @@
             letter-spacing: 1px;
             animation: brilho 2.2s infinite ease-in-out;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.35);
-            margin-bottom: 12px;
         }
 
         @keyframes brilho {
@@ -95,6 +102,37 @@
             box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.35), 0 0 35px rgba(255, 215, 0, 0.6);
             transform: scale(1.05);
             animation: none;
+        }
+
+        /* Caixa da data salva (aparece do lado) */
+        .data-salva {
+            background: rgba(79, 172, 254, 0.15);
+            border: 1px solid rgba(79, 172, 254, 0.4);
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-width: 110px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .data-salva.mostrar {
+            display: flex;
+        }
+
+        .data-salva-titulo {
+            font-size: 0.7rem;
+            color: #4facfe;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-salva-valor {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
         }
 
         .feedback-data {
@@ -295,7 +333,6 @@
             animation: nomeEntrada 0.6s ease 0.35s both;
         }
 
-        /* Frase motivacional */
         .frase-motivacional {
             font-size: 1rem;
             font-style: italic;
@@ -323,6 +360,11 @@
         .formulario.esconder {
             display: none;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
@@ -347,7 +389,16 @@
             <p class="subtitle">Selecione sua data de nascimento</p>
 
             <label for="dataNascimento">Data de Nascimento:</label>
-            <input type="date" id="dataNascimento">
+            
+            <!-- Campo de data + data salva do lado -->
+            <div class="area-data">
+                <input type="date" id="dataNascimento">
+                
+                <div class="data-salva" id="dataSalvaBox">
+                    <div class="data-salva-titulo">Salva</div>
+                    <div class="data-salva-valor" id="dataSalvaValor">--/--/----</div>
+                </div>
+            </div>
             
             <div class="feedback-data" id="feedback">Data selecionada!</div>
 
@@ -369,6 +420,8 @@
         const inputData = document.getElementById("dataNascimento");
         const btn = document.getElementById("btnDescobrir");
         const feedback = document.getElementById("feedback");
+        const dataSalvaBox = document.getElementById("dataSalvaBox");
+        const dataSalvaValor = document.getElementById("dataSalvaValor");
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -450,8 +503,25 @@
             "Peixes": "linear-gradient(135deg, #0a1a2e, #1a2a4a, #6495ed)"
         };
 
+        // Formata a data para DD/MM/AAAA
+        function formatarData(dataISO) {
+            if (!dataISO) return "--/--/----";
+            const [ano, mes, dia] = dataISO.split("-");
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        function atualizarDataSalvaNaTela(data) {
+            if (data) {
+                dataSalvaValor.textContent = formatarData(data);
+                dataSalvaBox.classList.add("mostrar");
+            } else {
+                dataSalvaBox.classList.remove("mostrar");
+            }
+        }
+
         function salvarUltimaData(data) {
             localStorage.setItem("ultimaDataNascimento", data);
+            atualizarDataSalvaNaTela(data);
         }
 
         function carregarUltimaData() {
@@ -461,6 +531,7 @@
                 inputData.classList.add("preenchido");
                 feedback.classList.add("mostrar");
                 btn.classList.add("ativo");
+                atualizarDataSalvaNaTela(dataSalva);
             }
         }
 
@@ -687,11 +758,13 @@
                     inputData.classList.add("preenchido");
                     feedback.classList.add("mostrar");
                     btn.classList.add("ativo");
+                    atualizarDataSalvaNaTela(dataSalva);
                 } else {
                     inputData.value = "";
                     inputData.classList.remove("preenchido");
                     feedback.classList.remove("mostrar");
                     btn.classList.remove("ativo");
+                    atualizarDataSalvaNaTela(null);
                 }
                 
                 inputData.focus();
