@@ -61,7 +61,6 @@
             font-weight: 600;
         }
 
-        /* Área do campo de data + data salva */
         .area-data {
             display: flex;
             gap: 12px;
@@ -104,7 +103,6 @@
             animation: none;
         }
 
-        /* Caixa da data salva (aparece do lado) */
         .data-salva {
             background: rgba(79, 172, 254, 0.15);
             border: 1px solid rgba(79, 172, 254, 0.4);
@@ -171,6 +169,68 @@
 
         button:hover.ativo {
             transform: scale(1.05) translateY(-2px);
+        }
+
+        /* ========== HISTÓRICO ========== */
+        .historico {
+            margin-top: 25px;
+            text-align: left;
+            display: none;
+        }
+
+        .historico.mostrar {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .historico-titulo {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-limpar-historico {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 1 !important;
+            width: auto;
+        }
+
+        .btn-limpar-historico:hover {
+            text-decoration: underline;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .lista-historico {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .item-historico {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: #ddd;
+        }
+
+        .item-historico:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: #ffd700;
+            color: #ffd700;
+            transform: translateY(-2px);
         }
 
         .loading {
@@ -362,8 +422,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -390,7 +450,6 @@
 
             <label for="dataNascimento">Data de Nascimento:</label>
             
-            <!-- Campo de data + data salva do lado -->
             <div class="area-data">
                 <input type="date" id="dataNascimento">
                 
@@ -403,6 +462,15 @@
             <div class="feedback-data" id="feedback">Data selecionada!</div>
 
             <button id="btnDescobrir" onclick="descobrirSigno()">Descobrir Signo</button>
+
+            <!-- Histórico de Datas -->
+            <div class="historico" id="historico">
+                <div class="historico-titulo">
+                    <span>Histórico de datas</span>
+                    <button class="btn-limpar-historico" onclick="limparHistorico()">Limpar</button>
+                </div>
+                <div class="lista-historico" id="listaHistorico"></div>
+            </div>
         </div>
 
         <div class="resultado" id="resultado">
@@ -422,6 +490,8 @@
         const feedback = document.getElementById("feedback");
         const dataSalvaBox = document.getElementById("dataSalvaBox");
         const dataSalvaValor = document.getElementById("dataSalvaValor");
+        const historicoBox = document.getElementById("historico");
+        const listaHistorico = document.getElementById("listaHistorico");
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -503,11 +573,75 @@
             "Peixes": "linear-gradient(135deg, #0a1a2e, #1a2a4a, #6495ed)"
         };
 
-        // Formata a data para DD/MM/AAAA
         function formatarData(dataISO) {
             if (!dataISO) return "--/--/----";
             const [ano, mes, dia] = dataISO.split("-");
             return `${dia}/${mes}/${ano}`;
+        }
+
+        // ========== HISTÓRICO ==========
+        function pegarHistorico() {
+            const historico = localStorage.getItem("historicoDatas");
+            return historico ? JSON.parse(historico) : [];
+        }
+
+        function salvarNoHistorico(data) {
+            let historico = pegarHistorico();
+
+            // Remove se já existir (para não duplicar)
+            historico = historico.filter(d => d !== data);
+
+            // Coloca a data mais recente no começo
+            historico.unshift(data);
+
+            // Mantém só as 8 últimas
+            if (historico.length > 8) {
+                historico = historico.slice(0, 8);
+            }
+
+            localStorage.setItem("historicoDatas", JSON.stringify(historico));
+            localStorage.setItem("ultimaDataNascimento", data);
+
+            atualizarDataSalvaNaTela(data);
+            renderizarHistorico();
+        }
+
+        function renderizarHistorico() {
+            const historico = pegarHistorico();
+            listaHistorico.innerHTML = "";
+
+            if (historico.length === 0) {
+                historicoBox.classList.remove("mostrar");
+                return;
+            }
+
+            historicoBox.classList.add("mostrar");
+
+            historico.forEach(data => {
+                const item = document.createElement("div");
+                item.className = "item-historico";
+                item.textContent = formatarData(data);
+                item.onclick = () => {
+                    inputData.value = data;
+                    inputData.classList.add("preenchido");
+                    feedback.classList.add("mostrar");
+                    btn.classList.add("ativo");
+                    atualizarDataSalvaNaTela(data);
+                    tocarSomSelecao();
+                };
+                listaHistorico.appendChild(item);
+            });
+        }
+
+        function limparHistorico() {
+            localStorage.removeItem("historicoDatas");
+            localStorage.removeItem("ultimaDataNascimento");
+            atualizarDataSalvaNaTela(null);
+            renderizarHistorico();
+            inputData.value = "";
+            inputData.classList.remove("preenchido");
+            feedback.classList.remove("mostrar");
+            btn.classList.remove("ativo");
         }
 
         function atualizarDataSalvaNaTela(data) {
@@ -519,11 +653,6 @@
             }
         }
 
-        function salvarUltimaData(data) {
-            localStorage.setItem("ultimaDataNascimento", data);
-            atualizarDataSalvaNaTela(data);
-        }
-
         function carregarUltimaData() {
             const dataSalva = localStorage.getItem("ultimaDataNascimento");
             if (dataSalva) {
@@ -533,6 +662,7 @@
                 btn.classList.add("ativo");
                 atualizarDataSalvaNaTela(dataSalva);
             }
+            renderizarHistorico();
         }
 
         function definirMaxData() {
@@ -572,7 +702,7 @@
                 feedback.classList.add("mostrar");
                 btn.classList.add("ativo");
                 tocarSomSelecao();
-                salvarUltimaData(this.value);
+                salvarNoHistorico(this.value);
             } else {
                 this.classList.remove("preenchido");
                 feedback.classList.remove("mostrar");
@@ -688,7 +818,7 @@
                 return;
             }
 
-            salvarUltimaData(dataInput);
+            salvarNoHistorico(dataInput);
             document.getElementById("loading").classList.add("mostrar");
 
             setTimeout(() => {
@@ -767,6 +897,7 @@
                     atualizarDataSalvaNaTela(null);
                 }
                 
+                renderizarHistorico();
                 inputData.focus();
             }, 300);
         }
