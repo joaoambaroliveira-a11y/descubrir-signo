@@ -175,7 +175,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ========== TELA DE DATA FUTURA ========== */
         .tela-erro {
             position: absolute;
             inset: 0;
@@ -229,11 +228,6 @@
             max-width: 220px;
         }
 
-        .btn-erro:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-        }
-
         .resultado {
             display: none;
             opacity: 0;
@@ -285,7 +279,7 @@
         .signo-periodo {
             font-size: 1.05rem;
             color: #ccc;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             animation: nomeEntrada 0.6s ease 0.25s both;
         }
 
@@ -293,18 +287,32 @@
             font-size: 1.02rem;
             line-height: 1.65;
             color: #e8e8e8;
-            margin-bottom: 28px;
+            margin-bottom: 18px;
             background: rgba(255, 255, 255, 0.08);
-            padding: 18px;
+            padding: 16px;
             border-radius: 14px;
             border: 1px solid rgba(255, 215, 0, 0.15);
             animation: nomeEntrada 0.6s ease 0.35s both;
         }
 
+        /* Frase motivacional */
+        .frase-motivacional {
+            font-size: 1rem;
+            font-style: italic;
+            color: #ffd700;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            padding: 14px 16px;
+            background: rgba(255, 215, 0, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid #ffd700;
+            animation: nomeEntrada 0.6s ease 0.4s both;
+        }
+
         .btn-atualizar {
             background: linear-gradient(90deg, #4facfe, #00f2fe);
             opacity: 1 !important;
-            animation: nomeEntrada 0.6s ease 0.45s both;
+            animation: nomeEntrada 0.6s ease 0.5s both;
         }
 
         .btn-atualizar:hover {
@@ -319,13 +327,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- Tela de carregamento -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <div class="loading-text">Atualizando seu signo...</div>
         </div>
 
-        <!-- Tela de Data Futura -->
         <div class="tela-erro" id="telaErro">
             <div class="erro-icone">⚠️</div>
             <div class="erro-titulo">Data Inválida</div>
@@ -336,7 +342,6 @@
             <button class="btn-erro" onclick="fecharTelaErro()">Entendi</button>
         </div>
 
-        <!-- Formulário -->
         <div class="formulario" id="formulario">
             <h1>✨ Descubra seu Signo</h1>
             <p class="subtitle">Selecione sua data de nascimento</p>
@@ -349,13 +354,13 @@
             <button id="btnDescobrir" onclick="descobrirSigno()">Descobrir Signo</button>
         </div>
 
-        <!-- Resultado -->
         <div class="resultado" id="resultado">
             <div class="emoji" id="emoji"></div>
             <div class="signo-nome" id="nomeSigno"></div>
             <div class="idade" id="idade"></div>
             <div class="signo-periodo" id="periodo"></div>
             <div class="signo-descricao" id="descricao"></div>
+            <div class="frase-motivacional" id="frase"></div>
             <button class="btn-atualizar" onclick="voltarFormulario()">Atualizar data</button>
         </div>
     </div>
@@ -365,7 +370,6 @@
         const btn = document.getElementById("btnDescobrir");
         const feedback = document.getElementById("feedback");
 
-        // ========== SONS ==========
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function tocarSomSelecao() {
@@ -489,7 +493,7 @@
                 const dataEscolhida = new Date(this.value + "T00:00:00");
 
                 if (dataEscolhida > hoje) {
-                    mostrarTelaErro(); // Mostra a tela de erro
+                    mostrarTelaErro();
                     return;
                 }
 
@@ -520,18 +524,66 @@
         };
 
         const signos = [
-            { nome: "Capricórnio", emoji: "♑", inicio: [12, 22], fim: [1, 19], descricao: "Prático, disciplinado e ambicioso. Valoriza o trabalho duro e a responsabilidade." },
-            { nome: "Aquário", emoji: "♒", inicio: [1, 20], fim: [2, 18], descricao: "Inovador, independente e humanitário. Ama a liberdade e as ideias originais." },
-            { nome: "Peixes", emoji: "♓", inicio: [2, 19], fim: [3, 20], descricao: "Sensível, intuitivo e sonhador. Tem grande empatia e imaginação." },
-            { nome: "Áries", emoji: "♈", inicio: [3, 21], fim: [4, 19], descricao: "Corajoso, energético e pioneiro. Gosta de desafios e de liderar." },
-            { nome: "Touro", emoji: "♉", inicio: [4, 20], fim: [5, 20], descricao: "Estável, leal e sensível aos prazeres. Valoriza segurança e conforto." },
-            { nome: "Gêmeos", emoji: "♊", inicio: [5, 21], fim: [6, 20], descricao: "Comunicativo, curioso e versátil. Adora aprender e conversar." },
-            { nome: "Câncer", emoji: "♋", inicio: [6, 21], fim: [7, 22], descricao: "Emotivo, protetor e intuitivo. Muito ligado à família e ao lar." },
-            { nome: "Leão", emoji: "♌", inicio: [7, 23], fim: [8, 22], descricao: "Carismático, generoso e confiante. Ama brilhar e ser admirado." },
-            { nome: "Virgem", emoji: "♍", inicio: [8, 23], fim: [9, 22], descricao: "Analítico, perfeccionista e prestativo. Preza pela ordem e eficiência." },
-            { nome: "Libra", emoji: "♎", inicio: [9, 23], fim: [10, 22], descricao: "Diplomático, justo e sociável. Busca harmonia e equilíbrio." },
-            { nome: "Escorpião", emoji: "♏", inicio: [10, 23], fim: [11, 21], descricao: "Intenso, determinado e misterioso. Tem grande poder de transformação." },
-            { nome: "Sagitário", emoji: "♐", inicio: [11, 22], fim: [12, 21], descricao: "Aventureiro, otimista e filosófico. Ama liberdade e novas experiências." }
+            { 
+                nome: "Capricórnio", emoji: "♑", inicio: [12, 22], fim: [1, 19], 
+                descricao: "Prático, disciplinado e ambicioso. Valoriza o trabalho duro e a responsabilidade.",
+                frase: "Sua determinação move montanhas. Continue firmes nos seus objetivos, o sucesso é só uma questão de tempo."
+            },
+            { 
+                nome: "Aquário", emoji: "♒", inicio: [1, 20], fim: [2, 18], 
+                descricao: "Inovador, independente e humanitário. Ama a liberdade e as ideias originais.",
+                frase: "Sua mente brilhante nasceu para inovar. O mundo precisa das suas ideias únicas."
+            },
+            { 
+                nome: "Peixes", emoji: "♓", inicio: [2, 19], fim: [3, 20], 
+                descricao: "Sensível, intuitivo e sonhador. Tem grande empatia e imaginação.",
+                frase: "Sua sensibilidade é um dom. Confie na sua intuição, ela nunca te abandona."
+            },
+            { 
+                nome: "Áries", emoji: "♈", inicio: [3, 21], fim: [4, 19], 
+                descricao: "Corajoso, energético e pioneiro. Gosta de desafios e de liderar.",
+                frase: "Sua coragem inspira. Vá em frente sem medo, o universo conspira a seu favor."
+            },
+            { 
+                nome: "Touro", emoji: "♉", inicio: [4, 20], fim: [5, 20], 
+                descricao: "Estável, leal e sensível aos prazeres. Valoriza segurança e conforto.",
+                frase: "Sua estabilidade é sua força. Construa com paciência, os resultados serão duradouros."
+            },
+            { 
+                nome: "Gêmeos", emoji: "♊", inicio: [5, 21], fim: [6, 20], 
+                descricao: "Comunicativo, curioso e versátil. Adora aprender e conversar.",
+                frase: "Sua curiosidade abre portas. Continue aprendendo e compartilhando o que sabe."
+            },
+            { 
+                nome: "Câncer", emoji: "♋", inicio: [6, 21], fim: [7, 22], 
+                descricao: "Emotivo, protetor e intuitivo. Muito ligado à família e ao lar.",
+                frase: "Seu coração generoso é seu maior poder. Cuide de quem ama e de si mesmo também."
+            },
+            { 
+                nome: "Leão", emoji: "♌", inicio: [7, 23], fim: [8, 22], 
+                descricao: "Carismático, generoso e confiante. Ama brilhar e ser admirado.",
+                frase: "Você nasceu para brilhar. Não tenha medo de ocupar o seu espaço no mundo."
+            },
+            { 
+                nome: "Virgem", emoji: "♍", inicio: [8, 23], fim: [9, 22], 
+                descricao: "Analítico, perfeccionista e prestativo. Preza pela ordem e eficiência.",
+                frase: "Seu olhar atento transforma o comum em excelente. Continue refinando o que faz."
+            },
+            { 
+                nome: "Libra", emoji: "♎", inicio: [9, 23], fim: [10, 22], 
+                descricao: "Diplomático, justo e sociável. Busca harmonia e equilíbrio.",
+                frase: "Sua busca por equilíbrio traz paz a todos ao redor. Continue sendo a ponte entre os lados."
+            },
+            { 
+                nome: "Escorpião", emoji: "♏", inicio: [10, 23], fim: [11, 21], 
+                descricao: "Intenso, determinado e misterioso. Tem grande poder de transformação.",
+                frase: "Sua intensidade é transformadora. Não tenha medo de renascer mais forte."
+            },
+            { 
+                nome: "Sagitário", emoji: "♐", inicio: [11, 22], fim: [12, 21], 
+                descricao: "Aventureiro, otimista e filosófico. Ama liberdade e novas experiências.",
+                frase: "Sua sede de liberdade e conhecimento não tem limites. Explore, descubra e viva intensamente."
+            }
         ];
 
         function calcularIdade(dataNascimento) {
@@ -607,6 +659,7 @@
                     const periodo = `${signoEncontrado.inicio[1]} ${meses[signoEncontrado.inicio[0]]} – ${signoEncontrado.fim[1]} ${meses[signoEncontrado.fim[0]]}`;
                     document.getElementById("periodo").textContent = periodo;
                     document.getElementById("descricao").textContent = signoEncontrado.descricao;
+                    document.getElementById("frase").textContent = `"${signoEncontrado.frase}"`;
 
                     document.body.style.background = fundosPorSigno[signoEncontrado.nome];
                     document.getElementById("formulario").classList.add("esconder");
